@@ -1,10 +1,6 @@
-#[derive(Debug, PartialEq)]
-pub enum IntOrFloatNumber {
-    Integer(i64),
-    Float(f64),
-}
+use super::util::signed_num_64::SignedNum64;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Token {
     BeginArray,
     EndArray,
@@ -15,6 +11,6 @@ pub enum Token {
     True,
     False,
     Null,
-    Number(IntOrFloatNumber),
+    Number(SignedNum64),
     String(String),
 }

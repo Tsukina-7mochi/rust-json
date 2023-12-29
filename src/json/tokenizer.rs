@@ -1,7 +1,7 @@
 use regex::bytes::Regex;
 
-use super::token::IntOrFloatNumber;
 use super::token::Token;
+use super::util::signed_num_64::SignedNum64;
 
 pub struct Tokenizer<'a> {
     index: usize,
@@ -136,7 +136,7 @@ impl<'a> Tokenizer<'a> {
         let sub = self.text[self.index..(self.index + match_len)].to_owned();
 
         let value: i64 = String::from_utf8(sub).unwrap().parse().unwrap();
-        let token = Token::Number(IntOrFloatNumber::Integer(value));
+        let token = Token::Number(SignedNum64::Integer(value));
         self.index += match_len;
 
         Some(token)
@@ -158,7 +158,7 @@ impl<'a> Tokenizer<'a> {
         let sub = self.text[self.index..(self.index + match_len)].to_owned();
 
         let value: f64 = String::from_utf8(sub).unwrap().parse().unwrap();
-        let token = Token::Number(IntOrFloatNumber::Float(value));
+        let token = Token::Number(SignedNum64::Float(value));
         self.index += match_len;
 
         Some(token)
@@ -334,13 +334,13 @@ mod tests {
         fn positive_int_number() {
             let mut tokenizer = Tokenizer::new("123");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Integer(123))),
+                Some(Token::Number(SignedNum64::Integer(123))),
                 tokenizer.consume_int_number()
             );
 
             let mut tokenizer = Tokenizer::new("123");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Integer(123))),
+                Some(Token::Number(SignedNum64::Integer(123))),
                 tokenizer.consume()
             );
         }
@@ -349,13 +349,13 @@ mod tests {
         fn negative_int_number() {
             let mut tokenizer = Tokenizer::new("-123");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Integer(-123))),
+                Some(Token::Number(SignedNum64::Integer(-123))),
                 tokenizer.consume_int_number()
             );
 
             let mut tokenizer = Tokenizer::new("-123");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Integer(-123))),
+                Some(Token::Number(SignedNum64::Integer(-123))),
                 tokenizer.consume()
             );
         }
@@ -364,13 +364,13 @@ mod tests {
         fn positive_float_number() {
             let mut tokenizer = Tokenizer::new("123.456");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(123.456))),
+                Some(Token::Number(SignedNum64::Float(123.456))),
                 tokenizer.consume_float_number()
             );
 
             let mut tokenizer = Tokenizer::new("123.456");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(123.456))),
+                Some(Token::Number(SignedNum64::Float(123.456))),
                 tokenizer.consume()
             );
         }
@@ -379,13 +379,13 @@ mod tests {
         fn positive_float_number_starts_with_0() {
             let mut tokenizer = Tokenizer::new("0.456");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(0.456))),
+                Some(Token::Number(SignedNum64::Float(0.456))),
                 tokenizer.consume_float_number()
             );
 
             let mut tokenizer = Tokenizer::new("0.456");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(0.456))),
+                Some(Token::Number(SignedNum64::Float(0.456))),
                 tokenizer.consume()
             );
         }
@@ -394,13 +394,13 @@ mod tests {
         fn negative_float_number() {
             let mut tokenizer = Tokenizer::new("-123.456");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(-123.456))),
+                Some(Token::Number(SignedNum64::Float(-123.456))),
                 tokenizer.consume_float_number()
             );
 
             let mut tokenizer = Tokenizer::new("-123.456");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(-123.456))),
+                Some(Token::Number(SignedNum64::Float(-123.456))),
                 tokenizer.consume()
             );
         }
@@ -409,13 +409,13 @@ mod tests {
         fn positive_float_number_with_exponent() {
             let mut tokenizer = Tokenizer::new("123.456e+10");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(123.456e+10))),
+                Some(Token::Number(SignedNum64::Float(123.456e+10))),
                 tokenizer.consume_float_number()
             );
 
             let mut tokenizer = Tokenizer::new("123.456e+10");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(123.456e+10))),
+                Some(Token::Number(SignedNum64::Float(123.456e+10))),
                 tokenizer.consume()
             );
         }
@@ -424,13 +424,13 @@ mod tests {
         fn negative_float_number_with_exponent() {
             let mut tokenizer = Tokenizer::new("-123.456e-10");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(-123.456e-10))),
+                Some(Token::Number(SignedNum64::Float(-123.456e-10))),
                 tokenizer.consume_float_number()
             );
 
             let mut tokenizer = Tokenizer::new("-123.456e-10");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(-123.456e-10))),
+                Some(Token::Number(SignedNum64::Float(-123.456e-10))),
                 tokenizer.consume()
             );
         }
@@ -439,13 +439,13 @@ mod tests {
         fn positive_float_number_with_exponent_without_fractional_part() {
             let mut tokenizer = Tokenizer::new("123e+10");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(123e+10))),
+                Some(Token::Number(SignedNum64::Float(123e+10))),
                 tokenizer.consume_float_number()
             );
 
             let mut tokenizer = Tokenizer::new("123e+10");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(123e+10))),
+                Some(Token::Number(SignedNum64::Float(123e+10))),
                 tokenizer.consume()
             );
         }
@@ -454,13 +454,13 @@ mod tests {
         fn negative_float_number_with_exponent_without_fractional_part() {
             let mut tokenizer = Tokenizer::new("-123e-10");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(-123e-10))),
+                Some(Token::Number(SignedNum64::Float(-123e-10))),
                 tokenizer.consume_float_number()
             );
 
             let mut tokenizer = Tokenizer::new("-123e-10");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(-123e-10))),
+                Some(Token::Number(SignedNum64::Float(-123e-10))),
                 tokenizer.consume()
             );
         }
@@ -469,13 +469,13 @@ mod tests {
         fn positive_float_number_with_exponent_without_fractional_part_and_plus() {
             let mut tokenizer = Tokenizer::new("123e10");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(123e10))),
+                Some(Token::Number(SignedNum64::Float(123e10))),
                 tokenizer.consume_float_number()
             );
 
             let mut tokenizer = Tokenizer::new("123e10");
             assert_eq!(
-                Some(Token::Number(IntOrFloatNumber::Float(123e10))),
+                Some(Token::Number(SignedNum64::Float(123e10))),
                 tokenizer.consume()
             );
         }
@@ -495,11 +495,11 @@ mod tests {
         assert_eq!(Some(Token::False), tokenizer.consume());
         assert_eq!(Some(Token::Null), tokenizer.consume());
         assert_eq!(
-            Some(Token::Number(IntOrFloatNumber::Integer(123))),
+            Some(Token::Number(SignedNum64::Integer(123))),
             tokenizer.consume()
         );
         assert_eq!(
-            Some(Token::Number(IntOrFloatNumber::Float(123.456))),
+            Some(Token::Number(SignedNum64::Float(123.456))),
             tokenizer.consume()
         );
         assert_eq!(
